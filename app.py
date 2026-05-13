@@ -44,6 +44,10 @@ SKILL_KEYWORDS = [
 
 SENIORITY_ORDER = ["Entry Level", "Mid Level", "Senior", "Manager & Lead"]
 JOB_EXPLORER_ROW_LIMIT = 1000
+MIN_VALID_MONTHLY_SALARY = 500
+MAX_VALID_AVERAGE_SALARY = 50_000
+MAX_VALID_MINIMUM_SALARY = 50_000
+MAX_VALID_MAXIMUM_SALARY = 70_000
 
 
 @st.cache_data(show_spinner="Loading job data...")
@@ -72,6 +76,8 @@ def load_data(csv_source: str) -> pd.DataFrame:
         if column in df.columns:
             df[column] = pd.to_numeric(df[column], errors="coerce")
 
+    df = filter_valid_salary_rows(df)
+
     if "category" not in df.columns and "categories" in df.columns:
         df["category"] = df["categories"].apply(extract_primary_category)
     if "role_family" not in df.columns:
@@ -84,6 +90,28 @@ def load_data(csv_source: str) -> pd.DataFrame:
         df["seniority"] = df.apply(classify_seniority, axis=1)
 
     return df
+
+
+def filter_valid_salary_rows(df: pd.DataFrame) -> pd.DataFrame:
+    required_columns = [
+        "salary_type",
+        "metadata_newPostingDate",
+        "average_salary",
+        "salary_minimum",
+        "salary_maximum",
+    ]
+    if not all(column in df.columns for column in required_columns):
+        return df
+
+    valid_salary_rows = (
+        df["salary_type"].eq("Monthly")
+        & df["metadata_newPostingDate"].notna()
+        & df["average_salary"].notna()
+        & df["average_salary"].between(MIN_VALID_MONTHLY_SALARY, MAX_VALID_AVERAGE_SALARY)
+        & df["salary_minimum"].between(0, MAX_VALID_MINIMUM_SALARY)
+        & df["salary_maximum"].between(0, MAX_VALID_MAXIMUM_SALARY)
+    )
+    return df.loc[valid_salary_rows].copy()
 
 
 def extract_primary_category(value: object) -> str:
