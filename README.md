@@ -2,6 +2,7 @@
 
 This project analyses Singapore job-posting data for **jobseekers and career switchers**.
 
+
 The main question is:
 
 > Which skills should I learn to improve employability?
