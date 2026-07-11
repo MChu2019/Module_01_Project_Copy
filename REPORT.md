@@ -1,5 +1,6 @@
 # Singapore Job Analytics - Written Report
 
+
 ## 1. Business Case
 
 - **Scenario:** A career coach or self-service career guidance team wants to help Singapore jobseekers, students, fresh graduates, and career switchers make more evidence-based learning and career decisions.
